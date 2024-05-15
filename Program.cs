@@ -1,34 +1,58 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Linq;
+
+class Program
+{
+    static async Task Main()
+    {
+        int numTasks = 10;
+
+        var tasks = Enumerable.Range(1, numTasks)
+                               .Select(taskId => MyCallableAsync(taskId))
+                               .ToArray();
+
+        await Task.WhenAll(tasks);
+    }
+
+    static async Task MyCallableAsync(int taskId)
+    {
+        Console.WriteLine($"Task {taskId} started by thread: {Environment.CurrentManagedThreadId}");
+        await Task.Delay(100);
+        Console.WriteLine($"Task {taskId} completed by thread: {Environment.CurrentManagedThreadId}");
+    }
+}
+
+
+
+/*
+
+using System;
 using System.Threading.Tasks;
 
 class Program
 {
-    static void Main(string[] args)
+
+    static async Task Main()
     {
-        List<Task<string>> tasks = new List<Task<string>>();
         int numTasks = 10;
+        var tasks = new Task[numTasks];
 
-        for (int i = 1; i <= numTasks; i++)
+        for (int i = 0; i < numTasks; i++)
         {
-            int taskId = i;
-            tasks.Add(Task.Run(async () => await MyCallable($"Task {taskId}", taskId * 100).ConfigureAwait(false)));
+            int taskId = i + 1;
+            tasks[i] = MyCallableAsync(taskId);
         }
 
-        Task.WhenAll(tasks).GetAwaiter().GetResult();
-
-        foreach (var task in tasks)
-        {
-            Console.WriteLine(task.Result);
-        }
+        await Task.WhenAll(tasks);
     }
 
-    static async Task<string> MyCallable(string taskName, int computationTime)
+    static async Task MyCallableAsync(int taskId)
     {
-        Console.WriteLine($"Task {taskName} started by thread: {Environment.CurrentManagedThreadId}");
-        await Task.Delay(computationTime);
-        return $"Task {taskName} completed by thread: {Environment.CurrentManagedThreadId}";
+        Console.WriteLine($"Task {taskId} started by thread: {Environment.CurrentManagedThreadId}");
+        await Task.Delay(100);
+        Console.WriteLine($"Task {taskId} completed by thread: {Environment.CurrentManagedThreadId}");
     }
-
     
 }
+*/
